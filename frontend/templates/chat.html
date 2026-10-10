@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}DocuMind — Research Chat{% endblock %}
+{% block body_class %}chat-body{% endblock %}
+
+{% block content %}
+<div class="app-layout">
+
+  <!-- ── Left Sidebar: Documents, Threads & Usage ────────────────────────── -->
+  <aside class="sidebar" id="app-sidebar">
+    <!-- Sidebar Header & PDF Uploader -->
+    <div class="sidebar-header">
+      <div class="sidebar-header-title">
+        <h2>Documents</h2>
+        <span class="doc-count-badge" id="doc-count-badge">0</span>
+      </div>
+
+      <!-- Drag & Drop PDF Uploader -->
+      <div class="dropzone" id="pdf-dropzone" role="button" tabindex="0" title="Drag & drop PDF or click to browse">
+        <input type="file" id="pdf-file-input" accept=".pdf,application/pdf" style="display: none;">
+        <div class="dropzone-content" id="dropzone-default">
+          <div class="dropzone-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="dropzone-text">
+            <strong>Drop PDF</strong> or <span>click to upload</span>
+          </div>
+        </div>
+
+        <div class="dropzone-content dropzone-uploading" id="dropzone-loading" style="display: none;">
+          <div class="dropzone-icon spinner-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="2" x2="12" y2="6"></line>
+              <line x1="12" y1="18" x2="12" y2="22"></line>
+              <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+              <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+              <line x1="2" y1="12" x2="6" y2="12"></line>
+              <line x1="18" y1="12" x2="22" y2="12"></line>
+              <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+              <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+            </svg>
+          </div>
+          <div class="dropzone-text" id="upload-status-text">Uploading & Ingesting...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document List -->
+    <div class="sidebar-list" id="documents-list">
+      <!-- Populated dynamically via chat.js -->
+      <div class="empty-state" id="documents-empty">
+        <div class="empty-state-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </div>
+        <h3>No Documents</h3>
+        <p>Upload a PDF to get started</p>
+      </div>
+    </div>
+
+    <!-- Conversation Threads (visible when a document is selected) -->
+    <div class="conversation-section" id="conversation-section" style="display: none;">
+      <div class="sidebar-section-title">
+        <span>Chat Threads</span>
+        <button class="new-chat-btn" id="new-chat-btn" title="Start a fresh conversation thread">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          New Chat
+        </button>
+      </div>
+      <div class="sidebar-list conversation-list" id="conversations-list">
+        <!-- Populated dynamically via chat.js -->
+      </div>
+    </div>
+
+    <!-- Usage Quota & Billing Banner -->
+    <div class="sidebar-footer" id="usage-container">
+      <div class="usage-banner" id="usage-banner">
+        <div class="usage-header">
+          <div class="tier-badge" id="tier-badge">
+            <svg class="tier-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span id="tier-name">Free Plan</span>
+          </div>
+          <button class="refresh-btn" id="refresh-usage-btn" title="Refresh usage">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          </button>
+        </div>
+        <div class="usage-stats">
+          <div class="usage-text" id="usage-text">Loading queries...</div>
+          <div class="progress-bar-bg" id="progress-bar-container">
+            <div class="progress-bar-fill" id="usage-progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+        <button class="upgrade-btn" id="tier-toggle-btn">Upgrade to Pro</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main Workspace ──────────────────────────────────────────────────── -->
+  <main class="main-content">
+    <!-- Top Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-toggle-btn" id="mobile-sidebar-toggle" title="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="{{ url_for('index') }}" class="header-brand">
+          <span class="logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/></svg>
+          </span>
+          <h1>DocuMind</h1>
+        </a>
+      </div>
+
+      <nav class="header-nav">
+        <a href="{{ url_for('chat') }}" class="nav-link active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Chat
+        </a>
+        <a href="{{ url_for('eval_dashboard') }}" class="nav-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Eval Dashboard
+        </a>
+        <a href="{{ url_for('docs') }}" class="nav-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Docs
+        </a>
+        <div class="backend-status-indicator" id="backend-status" title="Backend Status">
+          <span class="status-dot"></span>
+          <span class="status-label">FastAPI</span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Chat Area -->
+    <div class="chat-container">
+      <div class="chat-workspace">
+        <div class="chat-panel">
+
+          <!-- Active Document Header Notice -->
+          <div class="active-doc-banner" id="active-doc-banner" style="display: none;">
+            <div class="active-doc-info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span>Active Document:</span>
+              <strong id="active-doc-name">No document selected</strong>
+            </div>
+            <button class="active-doc-close" id="deselect-doc-btn" title="Deselect document">×</button>
+          </div>
+
+          <!-- Chat Messages Area -->
+          <div class="chat-messages" id="chat-messages">
+            <!-- Empty state when no document is selected -->
+            <div class="chat-empty" id="chat-no-doc">
+              <div class="chat-empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <h2>Select a Document to Begin</h2>
+              <p>Upload a PDF in the sidebar or choose an existing document to start your research session.</p>
+            </div>
+
+            <!-- Empty state when document is selected, but conversation has no messages -->
+            <div class="chat-empty" id="chat-empty-prompt" style="display: none;">
+              <div class="chat-empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/>
+                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
+                </svg>
+              </div>
+              <h2 id="empty-doc-title">DocuMind Research Assistant</h2>
+              <p id="empty-doc-subtitle">Ask any question about your document.</p>
+              <div class="suggested-queries">
+                <p>Try questions like:</p>
+                <button class="suggested-query-btn" data-query="What are the key findings and main arguments in this document?">
+                  "What are the key findings and main arguments in this document?"
+                </button>
+                <button class="suggested-query-btn" data-query="Summarize the methodology and compare the approaches discussed.">
+                  "Summarize the methodology and compare the approaches discussed."
+                </button>
+                <button class="suggested-query-btn" data-query="What are the critical limitations or conclusions mentioned?">
+                  "What are the critical limitations or conclusions mentioned?"
+                </button>
+              </div>
+            </div>
+
+            <!-- Message List Container -->
+            <div id="messages-list"></div>
+
+            <!-- Active Streaming / Agent Thinking Indicator -->
+            <div class="message assistant" id="streaming-bubble" style="display: none;">
+              <div class="message-avatar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                  <circle cx="12" cy="5" r="2"></circle>
+                  <path d="M12 7v4"></path>
+                  <line x1="8" y1="16" x2="8" y2="16"></line>
+                  <line x1="16" y1="16" x2="16" y2="16"></line>
+                </svg>
+              </div>
+              <div class="message-body">
+                <div class="agent-steps" id="streaming-phase-container">
+                  <div class="spinner-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="2" x2="12" y2="6"></line>
+                      <line x1="12" y1="18" x2="12" y2="22"></line>
+                      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                      <line x1="2" y1="12" x2="6" y2="12"></line>
+                      <line x1="18" y1="12" x2="22" y2="12"></line>
+                      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                  </div>
+                  <span id="streaming-phase-text">Thinking...</span>
+                </div>
+                <div class="message-content" id="streaming-partial-answer" style="display: none;"></div>
+              </div>
+            </div>
+
+            <!-- Scroll Anchor -->
+            <div id="messages-bottom"></div>
+          </div>
+
+          <!-- Chat Input Area -->
+          <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+              <textarea
+                class="chat-input"
+                id="chat-input"
+                placeholder="Select a document first..."
+                rows="1"
+                disabled
+              ></textarea>
+              <div class="chat-input-actions">
+                <button class="chat-stop-btn" id="chat-stop-btn" style="display: none;" title="Stop response generation">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>
+                </button>
+                <button
+                  class="chat-send-btn"
+                  id="chat-send-btn"
+                  disabled
+                  title="Send message (Enter)"
+                >
+                  <svg class="send-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                  <div class="spinner-icon send-loading" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="2" x2="12" y2="6"></line>
+                      <line x1="12" y1="18" x2="12" y2="22"></line>
+                      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                      <line x1="2" y1="12" x2="6" y2="12"></line>
+                      <line x1="18" y1="12" x2="22" y2="12"></line>
+                      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                    </svg>
+                  </div>
+                </button>
+              </div>
+            </div>
+            <div class="chat-input-hint">
+              <span>Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for a new line</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

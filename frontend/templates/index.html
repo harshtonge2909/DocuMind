@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}DocuMind — Agentic RAG Research Assistant{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+  <!-- Navigation Bar -->
+  <nav class="landing-nav">
+    <div class="landing-nav-brand">
+      <svg class="landing-logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/>
+        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/>
+      </svg>
+      <span>DocuMind</span>
+    </div>
+    <div class="landing-nav-links">
+      <a href="{{ url_for('chat') }}" class="landing-nav-link">App</a>
+      <a href="{{ url_for('eval_dashboard') }}" class="landing-nav-link">Evaluations</a>
+      <a href="{{ url_for('docs') }}" class="landing-nav-link">Docs</a>
+      <a href="{{ url_for('chat') }}" class="landing-nav-btn">Launch App</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Powered by LangGraph & Gemini
+      </div>
+      <h1 class="hero-title">
+        Research at the speed of thought.
+      </h1>
+      <p class="hero-subtitle">
+        Upload complex PDFs and codebases. Ask multi-hop questions. Get cited, verifiable answers backed by an autonomous agentic retrieval pipeline.
+      </p>
+      <div class="hero-cta-group">
+        <a href="{{ url_for('chat') }}" class="hero-btn-primary">
+          Launch App
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a href="{{ url_for('docs') }}" class="hero-btn-secondary">
+          Documentation
+        </a>
+      </div>
+    </div>
+    
+    <!-- Abstract Workflow Visual -->
+    <div class="hero-visual">
+      <div class="hero-visual-card">
+        <div class="hero-visual-header">
+          <div class="hero-visual-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="hero-visual-title">Agentic Workflow</span>
+        </div>
+        <div class="hero-visual-body">
+          <div class="workflow-step">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+            <span>Query Planning & Decomposition</span>
+          </div>
+          <div class="workflow-step active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            <span>Hybrid Search (Pgvector + BM25 + RRF)</span>
+          </div>
+          <div class="workflow-step">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Answer Synthesis & Grounding Citations</span>
+          </div>
+          <div class="workflow-step">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Self-Reflection Critic & Hallucination Filter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features-section">
+    <h2 class="section-title">Built for complex research.</h2>
+    <p class="section-subtitle">Not just a basic RAG pipeline. DocuMind uses advanced AI patterns to ensure high precision.</p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Hybrid Search & RRF</h3>
+        <p>Combines Pgvector semantic search with BM25 keyword matching and Reciprocal Rank Fusion for unparalleled retrieval accuracy.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><line x1="7" y1="6.5" x2="10" y2="10.5"/><line x1="17" y1="6.5" x2="14" y2="10.5"/><line x1="7" y1="17.5" x2="10" y2="13.5"/><line x1="17" y1="17.5" x2="14" y2="13.5"/></svg>
+        </div>
+        <h3>LangGraph Agents</h3>
+        <p>Multi-step agent workflow that plans retrieval strategies, retrieves context, and self-critiques for hallucinations.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 12 14 22 4"/></svg>
+        </div>
+        <h3>Verifiable Citations</h3>
+        <p>Every answer includes precise source highlights and confidence scores, evaluated automatically by the Ragas framework.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>Semantic Caching</h3>
+        <p>Powered by Redis. Repeated queries are answered instantly without hitting the LLM, reducing latency and costs.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="landing-footer-content">
+      <div class="landing-footer-brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.04z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.04z"/></svg>
+        DocuMind
+      </div>
+      <div class="landing-footer-copy">
+        Production-grade Agentic Retrieval-Augmented Generation.
+      </div>
+    </div>
+  </footer>
+</div>
+{% endblock %}
